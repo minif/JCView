@@ -2,6 +2,8 @@ var sceneFile
 var softBodies
 var fullDoc //Debug purposes
 
+var controlStyle = 0;
+
 //Button Hanling
 function download() {
 	downloadXML(sceneFile, "test.scene", "text/plain")	
@@ -46,6 +48,29 @@ function finishedLoading(scene) {
 	softBodies = drawSoftbodyList(scene);
 	update();
 }
+
+var dragging = false;
+var dragX = 0;
+var dragY = 0;
+
+//Mouse tracking for canvas
+var mtt = new MouseTouchTracker(canvas,
+  function(evtType, x, y) {
+		//Handle Dragging
+		switch (evtType) {
+			case MouseEvents.upEvent:
+				dragging=false;
+				break;
+			case MouseEvents.downEvent:
+				dragging=true;
+				dragX = x;
+				dragY = y;	
+				console.log(x+" "+y);
+				break;
+		}
+		//Will be used for mouse detection on multiple views. For now it is just the canvas.
+		cameraHandleInput(evtType,x,y)
+});
 
 //Download XML as .scene
 function downloadXML(content, fileName, contentType) {

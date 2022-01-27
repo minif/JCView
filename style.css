@@ -4,6 +4,14 @@ html, body {
 }
 
 input {
-	//-webkit-appearance: none;
 	width: 20% !important;
+}
+
+.draggable {
+    cursor: move;
+    user-select: none;
+}
+
+hidden {
+	display: none;
 }

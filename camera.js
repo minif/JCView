@@ -2,25 +2,33 @@
 var cameraX = 0;
 var cameraY = 0;
 var cameraZoom = 4;
+const minZoom = 1;
+const maxZoom = 10000;
 
 //Camera Bounds control
+var lowestCameraX = Infinity
+var highestCameraX = -Infinity
+var lowestCameraY = Infinity
+var highestCameraY = -Infinity
+
 var lowestX = Infinity
 var highestX = -Infinity
 var lowestY = Infinity
 var highestY = -Infinity
 
-//Setup Sliders
-var xPanSlider = document.getElementById("xPan");
-xPanSlider.value = cameraX
-var yPanSlider = document.getElementById("yPan");
-yPanSlider.value = cameraY
-var zoomSlider = document.getElementById("zoom");
-zoomSlider.value = 3000;
-setZoom(zoomSlider.value)
+//Setup Sliders (No longer in use!)
+//var xPanSlider = document.getElementById("xPan");
+//xPanSlider.value = cameraX
+//var yPanSlider = document.getElementById("yPan");
+//yPanSlider.value = cameraY
+//var zoomSlider = null //document.getElementById("zoom"); //deprecated 
+//zoomSlider.value = 3000; //deprecated
+//setZoom(zoomSlider.value) //deprecated
 
 //Setup listener for window resizing
 window.addEventListener('resize', update);
 
+/* deprecated
 //Setup functions upon using sliders
 xPanSlider.oninput = function() {
   cameraX = parseFloat(this.value);
@@ -30,25 +38,15 @@ yPanSlider.oninput = function() {
   cameraY = parseFloat(this.value);
 	update();
 }
+
 zoomSlider.oninput = function() {
   setZoom(this.value)
 	update();
 }
+*/
 
+//deprecated - do not use unless you like idk
 //Deal with zoom math (Squares the camera zoom to make the slider slower at higher zooms.)
-function setZoom(value) {
-	cameraZoom = parseFloat(value)/2000;
-	cameraZoom*=cameraZoom
-}
-
-//Set minimums and maximums for sliders (1 unit on slider = 1 unit in camera)
-function setCameraBounds(lX,hX, lY, hY) {
-	console.log(lX+" "+hX)
-	xPanSlider.setAttribute("min",lX);
-	xPanSlider.setAttribute("max",hX);
-	yPanSlider.setAttribute("min",lY);
-	yPanSlider.setAttribute("max",hY);
-}
 
 //Main update function. Called whenever any change is made.
 function update() {
@@ -82,6 +80,66 @@ function update() {
 
 	//SoftBody Drawing should have reported the hightest and lowest bounds, so we can set the camera to this.
 	setCameraBounds(lowestX, highestX, lowestY, highestY)
+}
+
+var cameraDragX;
+var cameraDragY;
+
+function cameraHandleInput(evtType,x,y) {
+	switch(evtType) {
+			case MouseEvents.downEvent: 
+				cameraDragX = x;
+				cameraDragY = y;	
+				break;
+			case MouseEvents.scrollEvent: 
+				if (controlStyle == 0) zoomView(y/100)
+				else if (controlStyle == 1) panCamera(x/3,y/3);
+				break;
+			case MouseEvents.moveEvent:
+				if (dragging) {
+					panCamera((x-cameraDragX)/cameraZoom,(y-cameraDragY)/cameraZoom);
+					cameraDragX = x;
+					cameraDragY = y;	
+				}
+				break;
+		}
+}
+
+//deprecated
+function setZoom(value) {
+	cameraZoom = parseFloat(value)/2000;
+	cameraZoom*=cameraZoom
+}
+
+//Change zoom size based on a value
+function zoomView(value) {
+	cameraZoom+=value*(cameraZoom/10);
+	if (cameraZoom<minZoom) cameraZoom = minZoom;
+	if (cameraZoom>maxZoom) cameraZoom = maxZoom;
+	update();
+}
+
+//Pan camera based on a change of x and y
+function panCamera(x,y){
+	cameraX+=x;
+	if (cameraX>highestCameraX) cameraX=highestCameraX;
+	if (cameraX<lowestCameraX) cameraX=lowestCameraX;
+	cameraY+=y;
+	if (cameraY>highestCameraY) cameraY=highestCameraY;
+	if (cameraY<lowestCameraY) cameraY=lowestCameraY;
+	update();
+}
+
+//Set minimums and maximums for sliders (1 unit on slider = 1 unit in camera)
+function setCameraBounds(lX,hX, lY, hY) {
+	//xPanSlider.setAttribute("min",lX);
+	//xPanSlider.setAttribute("max",hX);
+	//yPanSlider.setAttribute("min",lY);
+	//yPanSlider.setAttribute("max",hY);
+	lowestCameraX = lX
+	highestCameraX = hX
+	lowestCameraY = lY
+	highestCameraY = hY
 }
 
 //Method to get a softbody by its name. If multiple softbodies exist with the same name, it gets the first one.

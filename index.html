@@ -3,24 +3,27 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <title>replit</title>
+    <title>Jelly Car Level Viewer</title>
     <link href="style.css" rel="stylesheet" type="text/css" />
   </head>
   <body>
-		<div>
+		<div id="menu">
 			<input type="file" id='input'/>
 			<button onclick="upload()">Upload</button>
+			<a>Drag to pan, Scroll to Zoom. 	</a>
+			<a href="https://github.com/minif/JCView">Source Code</a>
+			<!--
 			<input type="range" min="-10000" max="10000" value="0" class="slider" id="xPan">X</input>
 			<input type="range" min="-10000" max="10000" value="0" class="slider" id="yPan">Y</input>
-			<input type="range" min="1000" max="30000" value="3" class="slider" id="zoom">Zoom</input>
-			<!--
+			<input "type="range" min="1000" max="30000" value="3" class="hidden" id="zoom"></input>
 			<button onclick="download()">Download</button>
 			<button onclick="test()">Test</button>
 			-->
 		</div>
 		
 		<canvas id="myCanvas" class="view"></canvas>
-	
+
+	<script src="mouseTracking.js"></script>
 	<script src="canvasManagement.js"></script>
 	<script src="camera.js"></script>
 	<script src="script.js"></script>

@@ -1,11 +1,12 @@
 //Init canvas
 var canvas = document.getElementById("myCanvas");
 var context = canvas.getContext("2d");
+var menuDiv = document.getElementById("menu");
 
 //Resize canvas, that way the canvas is always the same size as the window
 function resizeCanvas() {
 	canvas.width  = window.innerWidth;
-	canvas.height = window.innerHeight;
+	canvas.height = window.innerHeight-menuDiv.offsetHeight;
 }
 
 //Clear the canvas for drawing
