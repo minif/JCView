@@ -92,8 +92,8 @@ function cameraHandleInput(evtType,x,y) {
 				cameraDragY = y;	
 				break;
 			case MouseEvents.scrollEvent: 
-				if (controlStyle == 0) zoomView(y/100)
-				else if (controlStyle == 1) panCamera(x/3,y/3);
+				if (controlStyle == 0||shifting) zoomView(y/100)
+				else if (controlStyle == 1) panCamera(x/cameraZoom,y/cameraZoom);
 				break;
 			case MouseEvents.moveEvent:
 				if (dragging) {

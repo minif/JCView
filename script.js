@@ -3,6 +3,8 @@ var softBodies
 var fullDoc //Debug purposes
 
 var controlStyle = 0;
+var controlMessage = document.getElementById("controls");
+updateControlMessage()
 
 //Button Hanling
 function download() {
@@ -71,6 +73,24 @@ var mtt = new MouseTouchTracker(canvas,
 		//Will be used for mouse detection on multiple views. For now it is just the canvas.
 		cameraHandleInput(evtType,x,y)
 });
+
+//Deal with a change in control style
+function changeControlStyle() {
+	controlStyle++;
+	if (controlStyle==2) controlStyle=0;
+	updateControlMessage()
+}
+
+function updateControlMessage() {
+	switch (controlStyle) {
+		case 0:
+			controlMessage.innerHTML="Drag to pan, Scroll to Zoom.";
+			break;
+		case 1:
+			controlMessage.innerHTML="Scroll to pan, Shift + Scroll to Zoom. (Experimental)";
+			break;
+	}
+}
 
 //Download XML as .scene
 function downloadXML(content, fileName, contentType) {

@@ -61,3 +61,21 @@ var MouseTouchTracker = function(canvas, callback){
 	canvas.onscroll = onScroll;
 	canvas.onwheel = onScroll;
 }
+
+//Manage Keys
+shifting = false;
+
+document.addEventListener('keydown', function(event) {
+    if(event.keyCode == 16) {
+        shifting = true;
+    }
+    else if(event.keyCode == 39) {
+        //alert('Right was pressed');
+    }
+});
+
+document.addEventListener('keyup', function(event) {
+    if(event.keyCode == 16) {
+			shifting = false;
+    }
+});
