@@ -1,68 +1,35 @@
-//Camera Control
-var cameraX = 0;
-var cameraY = 0;
-var cameraZoom = 4;
-const minZoom = 1;
-const maxZoom = 10000;
+var CameraView = {
+	//Camera Control
+	cameraX: 0,
+	cameraY: 0,
+	cameraZoom : 4,
+	minZoom : 1,
+	maxZoom : 10000,
 
-//Camera Bounds control
-var lowestCameraX = Infinity
-var highestCameraX = -Infinity
-var lowestCameraY = Infinity
-var highestCameraY = -Infinity
-
-var lowestX = Infinity
-var highestX = -Infinity
-var lowestY = Infinity
-var highestY = -Infinity
-
-//Setup Sliders (No longer in use!)
-//var xPanSlider = document.getElementById("xPan");
-//xPanSlider.value = cameraX
-//var yPanSlider = document.getElementById("yPan");
-//yPanSlider.value = cameraY
-//var zoomSlider = null //document.getElementById("zoom"); //deprecated 
-//zoomSlider.value = 3000; //deprecated
-//setZoom(zoomSlider.value) //deprecated
+	lowestX : Infinity,
+	highestX : -Infinity,
+	lowestY: Infinity,
+	highestY: -Infinity,
+}
 
 //Setup listener for window resizing
-window.addEventListener('resize', update);
-
-/* deprecated
-//Setup functions upon using sliders
-xPanSlider.oninput = function() {
-  cameraX = parseFloat(this.value);
-	update();
-}
-yPanSlider.oninput = function() {
-  cameraY = parseFloat(this.value);
-	update();
-}
-
-zoomSlider.oninput = function() {
-  setZoom(this.value)
-	update();
-}
-*/
-
-//deprecated - do not use unless you like idk
-//Deal with zoom math (Squares the camera zoom to make the slider slower at higher zooms.)
+window.addEventListener('resize', CameraView.update);
 
 //Main update function. Called whenever any change is made.
-function update() {
+CameraView.update = function() {
 	if (sceneFile==null) return;
 	//Clear Canvas for drawing
 	resizeCanvas()
 	erase()
 	//Get objects to draw
-	sceneObjects = getObjects();
-	sceneSoftBodies = getSoftBodies();
+	var sceneObjects = getObjects();
+	var sceneSoftBodies = getSoftBodies();
 
 	//Prepare for bounds checking
-	lowestX = Infinity
-	highestX = -Infinity
-	lowestY = Infinity
-	highestY = -Infinity
+	this.lowestX = 444
+	this.highestX = -Infinity
+	this.lowestY = Infinity
+	this.highestY = -Infinity
 
 	//Loop through each object in the level and draw that object
 	for (var i=0; i<sceneObjects.length; i++) {
@@ -73,31 +40,31 @@ function update() {
 		var xScale = sceneObjects[i].getAttribute("scaleX");
 		var yScale = sceneObjects[i].getAttribute("scaleY");
 		var angle = sceneObjects[i].getAttribute("angle");
-		var body = getSoftbodyByName(sceneSoftBodies,name);
+		var body = this.getSoftbodyByName(sceneSoftBodies,name);
 		//Draw it!
-		drawSoftBody(body, xPos, yPos, xScale, yScale,angle);
+		this.drawSoftBody(body, xPos, yPos, xScale, yScale,angle);
 	}	
 
 	//SoftBody Drawing should have reported the hightest and lowest bounds, so we can set the camera to this.
-	setCameraBounds(lowestX, highestX, lowestY, highestY)
+	//this.setCameraBounds(lowestX, highestX, lowestY, highestY)
 }
 
 var cameraDragX;
 var cameraDragY;
 
-function cameraHandleInput(evtType,x,y) {
+CameraView.cameraHandleInput = function(evtType,x,y) {
 	switch(evtType) {
 			case MouseEvents.downEvent: 
 				cameraDragX = x;
 				cameraDragY = y;	
 				break;
 			case MouseEvents.scrollEvent: 
-				if (controlStyle == 0||shifting) zoomView(y/100)
-				else if (controlStyle == 1) panCamera(x/cameraZoom,y/cameraZoom);
+				if (controlStyle == 0||shifting) this.zoomView(y/100)
+				else if (controlStyle == 1) this.panCamera(x/this.cameraZoom,y/this.cameraZoom);
 				break;
 			case MouseEvents.moveEvent:
 				if (dragging) {
-					panCamera((x-cameraDragX)/cameraZoom,(y-cameraDragY)/cameraZoom);
+					this.panCamera((x-cameraDragX)/this.cameraZoom,(y-cameraDragY)/this.cameraZoom);
 					cameraDragX = x;
 					cameraDragY = y;	
 				}
@@ -105,37 +72,27 @@ function cameraHandleInput(evtType,x,y) {
 		}
 }
 
-//deprecated
-function setZoom(value) {
-	cameraZoom = parseFloat(value)/2000;
-	cameraZoom*=cameraZoom
-}
-
 //Change zoom size based on a value
-function zoomView(value) {
-	cameraZoom+=value*(cameraZoom/10);
-	if (cameraZoom<minZoom) cameraZoom = minZoom;
-	if (cameraZoom>maxZoom) cameraZoom = maxZoom;
-	update();
+CameraView.zoomView = function(value) {
+	this.cameraZoom+=value*(this.cameraZoom/10);
+	if (this.cameraZoom<this.minZoom) this.cameraZoom = this.minZoom;
+	if (this.cameraZoom>this.maxZoom) this.cameraZoom = this.maxZoom;
+	this.update();
 }
 
 //Pan camera based on a change of x and y
-function panCamera(x,y){
-	cameraX+=x;
-	if (cameraX>highestCameraX) cameraX=highestCameraX;
-	if (cameraX<lowestCameraX) cameraX=lowestCameraX;
-	cameraY+=y;
-	if (cameraY>highestCameraY) cameraY=highestCameraY;
-	if (cameraY<lowestCameraY) cameraY=lowestCameraY;
-	update();
+CameraView.panCamera = function(x,y) {
+	this.cameraX+=x;
+	if (this.cameraX>this.highestX) this.cameraX=this.highestX;
+	if (this.cameraX<this.lowestX) this.cameraX=this.lowestX;
+	this.cameraY+=y;
+	if (this.cameraY>this.highestY) this.cameraY=this.highestY;
+	if (this.cameraY<this.lowestY) this.cameraY=this.lowestY;
+	this.update();
 }
 
 //Set minimums and maximums for sliders (1 unit on slider = 1 unit in camera)
-function setCameraBounds(lX,hX, lY, hY) {
-	//xPanSlider.setAttribute("min",lX);
-	//xPanSlider.setAttribute("max",hX);
-	//yPanSlider.setAttribute("min",lY);
-	//yPanSlider.setAttribute("max",hY);
+CameraView.setCameraBounds = function(lX,hX,lY,hY) {
 	lowestCameraX = lX
 	highestCameraX = hX
 	lowestCameraY = lY
@@ -143,7 +100,7 @@ function setCameraBounds(lX,hX, lY, hY) {
 }
 
 //Method to get a softbody by its name. If multiple softbodies exist with the same name, it gets the first one.
-function getSoftbodyByName(bodies, name) {
+CameraView.getSoftbodyByName= function(bodies,name) {
 	for (var i=0; i<bodies.length; i++) {
 		if (bodies[i].getAttribute("name")==name) return bodies[i];
 	}
@@ -151,7 +108,7 @@ function getSoftbodyByName(bodies, name) {
 }
 
 //WIP Method which gets a list of all softbodies, and creates a list of them.
-function drawSoftbodyList(scene) {
+CameraView.drawSoftbodyList= function(scene) {
 	var softbodies = getSoftBodies();
 	for (var i=0; i<softbodies.length; i++) {
 		console.log(softbodies[i].getAttribute("name"))
@@ -159,11 +116,11 @@ function drawSoftbodyList(scene) {
 }
 
 //Method in which convers points (In format [x,y]) from level format to canvas format for drawing.
-function convertSceneToCanvas(x,y) {
+CameraView.convertSceneToCanvas=function(x,y) {
 	midX = canvas.width/2; 
 	midY = canvas.height/2;
-	cvX = (x+cameraX)*cameraZoom;
-	cvY = (y+cameraY)*cameraZoom;
+	cvX = (x+this.cameraX)*this.cameraZoom;
+	cvY = (y+this.cameraY)*this.cameraZoom;
 	cvX +=midX;
 	cvY +=midY;
 	return [cvX, cvY];
@@ -172,7 +129,7 @@ function convertSceneToCanvas(x,y) {
 //Math based method in which rotates points. Origin is defined relative to the SoftBody. 
 //X,Y are SoftBody coords. Angle is in radians
 //(Example: A softbody with a point at (1,1) will end up at (-1,-1) after a π rotation.) 
-function rotate(x, y, angle) {
+CameraView.rotate = function(x, y, angle) {
 	cos = Math.cos(angle),
 	sin = Math.sin(angle),
 	nx = (cos * (x)) + (sin * (y)),
@@ -182,7 +139,7 @@ function rotate(x, y, angle) {
 
 //The main Softbody Drawing function. 
 //Accepts the softBody object to draw with valid points, as well as the x, y, scale and rotation in the level. 
-function drawSoftBody(softBody, xPos, yPos, xScale, yScale, rotation) {
+CameraView.drawSoftBody=function(softBody, xPos, yPos, xScale, yScale, rotation) {
 	//Gets the points from the softbody
 	var points = softBody.getElementsByTagName("Points")[0].children;
 	//Canvas points to plot
@@ -199,7 +156,7 @@ function drawSoftBody(softBody, xPos, yPos, xScale, yScale, rotation) {
 		x*=xScale;
 		y*=-yScale;
 		//Rotate as per level specifications.
-		pts = rotate(x, y, rotation);
+		pts = this.rotate(x, y, rotation);
 		x=pts[0];
 		y=pts[1];
 		//Move the Softbody to where it should be in the level
@@ -207,13 +164,13 @@ function drawSoftBody(softBody, xPos, yPos, xScale, yScale, rotation) {
 		y-=parseFloat(yPos);
 		//x,y should now be relative to level.
 		//First, determine if the coords are extremena 
-		if (-x < lowestX) lowestX=-x;
-		if (-x > highestX) highestX=-x;
-		if (-y < lowestY) lowestY=-y;
-		if (-y > highestY) highestY=-y;
+		if (-x < this.lowestX) this.lowestX=-x;
+		if (-x > this.highestX) this.highestX=-x;
+		if (-y < this.lowestY) this.lowestY=-y;
+		if (-y > this.highestY) this.highestY=-y;
 
 		//Convert points from relative to level to relative to canvas and add to list
-		pts = convertSceneToCanvas(x,y);
+		pts = this.convertSceneToCanvas(x,y);
 		pointsToRender.push(pts)
 		//Also draw the point itself
 		drawPoint(pts[0],pts[1])
