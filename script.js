@@ -1,10 +1,13 @@
-var sceneFile
-var softBodies
+const sceneFile = 1;
+const softBodies = 2;
 var fullDoc //Debug purposes
 
 var controlStyle = 0;
 var controlMessage = document.getElementById("controls");
 updateControlMessage()
+
+//Setup listener for window resizing
+window.addEventListener('resize', CameraView.update);
 
 //Button Hanling
 function download() {
@@ -12,18 +15,6 @@ function download() {
 }
 function test() {
 	sceneFile.children[1].setAttribute("test","tttt")
-}
-
-//Universal method to get a list of Objects in the level
-function getObjects() {
-	return sceneFile.getElementsByTagName("Objects")[0].getElementsByTagName("Object");
-}
-
-//Universal method to get a list of SoftBodies in the level
-function getSoftBodies() {
-	rt = sceneFile.getElementsByTagName("SoftBody");
-	softBodies = rt;
-	return rt;
 }
 
 //Upload .scene file and parse with XML parser
@@ -46,8 +37,8 @@ function upload() {
 
 //When loading has finished, Set up level editor.
 function finishedLoading(scene) {
-	sceneFile=scene //For Public/Debug Access
-	softBodies = CameraView.drawSoftbodyList(scene);
+	LevelData.LevelXML=scene //For Public/Debug Access
+	//softBodies = CameraView.drawSoftbodyList(scene);
 	CameraView.update();
 }
 
