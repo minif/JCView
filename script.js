@@ -47,8 +47,8 @@ function upload() {
 //When loading has finished, Set up level editor.
 function finishedLoading(scene) {
 	sceneFile=scene //For Public/Debug Access
-	softBodies = drawSoftbodyList(scene);
-	update();
+	softBodies = CameraView.drawSoftbodyList(scene);
+	CameraView.update();
 }
 
 var dragging = false;
@@ -71,7 +71,7 @@ var mtt = new MouseTouchTracker(canvas,
 				break;
 		}
 		//Will be used for mouse detection on multiple views. For now it is just the canvas.
-		cameraHandleInput(evtType,x,y)
+		CameraView.cameraHandleInput(evtType,x,y)
 });
 
 //Deal with a change in control style
