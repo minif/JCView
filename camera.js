@@ -1,3 +1,8 @@
+var cameraDragX;
+var cameraDragY;
+var lineColor = "#000000"
+var selectedLineColor = "#008FFF"
+
 var CameraView = {
 	//Camera Control
 	cameraX: 0,
@@ -12,24 +17,21 @@ var CameraView = {
 	highestY: -Infinity,
 }
 
-//Setup listener for window resizing
-window.addEventListener('resize', CameraView.update);
-
 //Main update function. Called whenever any change is made.
 CameraView.update = function() {
 	if (sceneFile==null) return;
 	//Clear Canvas for drawing
-	resizeCanvas()
-	erase()
+	CanvasManager.resizeCanvas()
+	CanvasManager.erase()
 	//Get objects to draw
-	var sceneObjects = getObjects();
-	var sceneSoftBodies = getSoftBodies();
+	var sceneObjects = LevelData.getObjects();
+	var sceneSoftBodies = LevelData.getSoftBodies();
 
 	//Prepare for bounds checking
-	this.lowestX = 444
-	this.highestX = -Infinity
-	this.lowestY = Infinity
-	this.highestY = -Infinity
+	CameraView.lowestX = 444
+	CameraView.highestX = -Infinity
+	CameraView.lowestY = Infinity
+	CameraView.highestY = -Infinity
 
 	//Loop through each object in the level and draw that object
 	for (var i=0; i<sceneObjects.length; i++) {
@@ -40,17 +42,17 @@ CameraView.update = function() {
 		var xScale = sceneObjects[i].getAttribute("scaleX");
 		var yScale = sceneObjects[i].getAttribute("scaleY");
 		var angle = sceneObjects[i].getAttribute("angle");
-		var body = this.getSoftbodyByName(sceneSoftBodies,name);
+		var body = CameraView.getSoftbodyByName(sceneSoftBodies,name);
+
+		var colorToDraw = lineColor;
+		if (Sidebar.selectedObject == i) colorToDraw = selectedLineColor;
 		//Draw it!
-		this.drawSoftBody(body, xPos, yPos, xScale, yScale,angle);
+		CameraView.drawSoftBody(body, xPos, yPos, xScale, yScale,angle, colorToDraw);
 	}	
-
-	//SoftBody Drawing should have reported the hightest and lowest bounds, so we can set the camera to this.
-	//this.setCameraBounds(lowestX, highestX, lowestY, highestY)
+	Sidebar.draw();
+	//SoftBody Drawing should have reported the hightest and lowest bounds, so we can set the camera to CameraView.
+	//CameraView.setCameraBounds(lowestX, highestX, lowestY, highestY)
 }
-
-var cameraDragX;
-var cameraDragY;
 
 CameraView.cameraHandleInput = function(evtType,x,y) {
 	switch(evtType) {
@@ -59,12 +61,12 @@ CameraView.cameraHandleInput = function(evtType,x,y) {
 				cameraDragY = y;	
 				break;
 			case MouseEvents.scrollEvent: 
-				if (controlStyle == 0||shifting) this.zoomView(y/100)
-				else if (controlStyle == 1) this.panCamera(x/this.cameraZoom,y/this.cameraZoom);
+				if (controlStyle == 0||shifting) CameraView.zoomView(y/100)
+				else if (controlStyle == 1) CameraView.panCamera(x/CameraView.cameraZoom,y/CameraView.cameraZoom);
 				break;
 			case MouseEvents.moveEvent:
 				if (dragging) {
-					this.panCamera((x-cameraDragX)/this.cameraZoom,(y-cameraDragY)/this.cameraZoom);
+					CameraView.panCamera((x-cameraDragX)/CameraView.cameraZoom,(y-cameraDragY)/CameraView.cameraZoom);
 					cameraDragX = x;
 					cameraDragY = y;	
 				}
@@ -74,21 +76,21 @@ CameraView.cameraHandleInput = function(evtType,x,y) {
 
 //Change zoom size based on a value
 CameraView.zoomView = function(value) {
-	this.cameraZoom+=value*(this.cameraZoom/10);
-	if (this.cameraZoom<this.minZoom) this.cameraZoom = this.minZoom;
-	if (this.cameraZoom>this.maxZoom) this.cameraZoom = this.maxZoom;
-	this.update();
+	CameraView.cameraZoom+=value*(CameraView.cameraZoom/10);
+	if (CameraView.cameraZoom<CameraView.minZoom) CameraView.cameraZoom = CameraView.minZoom;
+	if (CameraView.cameraZoom>CameraView.maxZoom) CameraView.cameraZoom = CameraView.maxZoom;
+	CameraView.update();
 }
 
 //Pan camera based on a change of x and y
 CameraView.panCamera = function(x,y) {
-	this.cameraX+=x;
-	if (this.cameraX>this.highestX) this.cameraX=this.highestX;
-	if (this.cameraX<this.lowestX) this.cameraX=this.lowestX;
-	this.cameraY+=y;
-	if (this.cameraY>this.highestY) this.cameraY=this.highestY;
-	if (this.cameraY<this.lowestY) this.cameraY=this.lowestY;
-	this.update();
+	CameraView.cameraX+=x;
+	if (CameraView.cameraX>CameraView.highestX) CameraView.cameraX=CameraView.highestX;
+	if (CameraView.cameraX<CameraView.lowestX) CameraView.cameraX=CameraView.lowestX;
+	CameraView.cameraY+=y;
+	if (CameraView.cameraY>CameraView.highestY) CameraView.cameraY=CameraView.highestY;
+	if (CameraView.cameraY<CameraView.lowestY) CameraView.cameraY=CameraView.lowestY;
+	CameraView.update();
 }
 
 //Set minimums and maximums for sliders (1 unit on slider = 1 unit in camera)
@@ -119,8 +121,8 @@ CameraView.drawSoftbodyList= function(scene) {
 CameraView.convertSceneToCanvas=function(x,y) {
 	midX = canvas.width/2; 
 	midY = canvas.height/2;
-	cvX = (x+this.cameraX)*this.cameraZoom;
-	cvY = (y+this.cameraY)*this.cameraZoom;
+	cvX = (x+CameraView.cameraX)*CameraView.cameraZoom;
+	cvY = (y+CameraView.cameraY)*CameraView.cameraZoom;
 	cvX +=midX;
 	cvY +=midY;
 	return [cvX, cvY];
@@ -139,7 +141,7 @@ CameraView.rotate = function(x, y, angle) {
 
 //The main Softbody Drawing function. 
 //Accepts the softBody object to draw with valid points, as well as the x, y, scale and rotation in the level. 
-CameraView.drawSoftBody=function(softBody, xPos, yPos, xScale, yScale, rotation) {
+CameraView.drawSoftBody=function(softBody, xPos, yPos, xScale, yScale, rotation, color) {
 	//Gets the points from the softbody
 	var points = softBody.getElementsByTagName("Points")[0].children;
 	//Canvas points to plot
@@ -156,7 +158,7 @@ CameraView.drawSoftBody=function(softBody, xPos, yPos, xScale, yScale, rotation)
 		x*=xScale;
 		y*=-yScale;
 		//Rotate as per level specifications.
-		pts = this.rotate(x, y, rotation);
+		pts = CameraView.rotate(x, y, rotation);
 		x=pts[0];
 		y=pts[1];
 		//Move the Softbody to where it should be in the level
@@ -164,17 +166,17 @@ CameraView.drawSoftBody=function(softBody, xPos, yPos, xScale, yScale, rotation)
 		y-=parseFloat(yPos);
 		//x,y should now be relative to level.
 		//First, determine if the coords are extremena 
-		if (-x < this.lowestX) this.lowestX=-x;
-		if (-x > this.highestX) this.highestX=-x;
-		if (-y < this.lowestY) this.lowestY=-y;
-		if (-y > this.highestY) this.highestY=-y;
+		if (-x < CameraView.lowestX) CameraView.lowestX=-x;
+		if (-x > CameraView.highestX) CameraView.highestX=-x;
+		if (-y < CameraView.lowestY) CameraView.lowestY=-y;
+		if (-y > CameraView.highestY) CameraView.highestY=-y;
 
 		//Convert points from relative to level to relative to canvas and add to list
-		pts = this.convertSceneToCanvas(x,y);
+		pts = CameraView.convertSceneToCanvas(x,y);
 		pointsToRender.push(pts)
 		//Also draw the point itself
-		drawPoint(pts[0],pts[1])
+		CanvasManager.drawPoint(pts[0],pts[1], color)
 	}
 	//Once the list has been made, send it off to the canvas to render
-	connectPoints(pointsToRender);
+	CanvasManager.connectPoints(pointsToRender,color);
 }
